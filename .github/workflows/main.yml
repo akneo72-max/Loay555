@@ -1,0 +1,137 @@
+name: RDP-Fast
+
+on:
+  workflow_dispatch:
+
+jobs:
+  secure-rdp:
+    runs-on: windows-latest
+    timeout-minutes: 3600
+
+    steps:
+      # ============================================
+      # ⚡ إعداد RDP والجدار الناري بسرعة
+      # ============================================
+      - name: ⚡ Fast RDP + Firewall Setup
+        shell: pwsh
+        run: |
+          Set-ItemProperty 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name fDenyTSConnections -Value 0 -Force
+          Set-ItemProperty 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name UserAuthentication -Value 0 -Force
+          Set-ItemProperty 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name SecurityLayer -Value 0 -Force
+
+          netsh advfirewall firewall delete rule name="RDP-Tailscale" > $null 2>&1
+          netsh advfirewall firewall add rule name="RDP-Tailscale" dir=in action=allow protocol=TCP localport=3389 > $null
+
+          Restart-Service TermService -Force
+          Write-Host "✅ RDP enabled + firewall configured"
+
+      # ============================================
+      # 👤 إنشاء مستخدم Alpha بباسورد ثابت سهل
+      # ============================================
+      - name: 👤 Create RDP User (Alpha / Zeta123)
+        shell: pwsh
+        run: |
+          $password = "Zeta123"
+          $securePass = ConvertTo-SecureString $password -AsPlainText -Force
+
+          # حذف المستخدم لو موجود مسبقاً
+          if (Get-LocalUser -Name "Alpha" -ErrorAction SilentlyContinue) {
+              Remove-LocalUser -Name "Alpha"
+          }
+
+          New-LocalUser -Name "Alpha" -Password $securePass -AccountNeverExpires -PasswordNeverExpires
+          Add-LocalGroupMember -Group "Administrators" -Member "Alpha"
+          Add-LocalGroupMember -Group "Remote Desktop Users" -Member "Alpha"
+
+          "RDP_PASS=$password" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "RDP_USER=Alpha"     | Out-File -FilePath $env:GITHUB_ENV -Append
+
+          Write-Host "✅ User Alpha created"
+
+      # ============================================
+      # 🌐 تثبيت Tailscale (أحدث نسخة)
+      # ============================================
+      - name: 🌐 Install Tailscale
+        shell: pwsh
+        run: |
+          $url = "https://pkgs.tailscale.com/stable/tailscale-setup-latest-amd64.msi"
+          $msi = "$env:TEMP\ts.msi"
+          Invoke-WebRequest -Uri $url -OutFile $msi -UseBasicParsing
+          Start-Process msiexec.exe -ArgumentList "/i","`"$msi`"","/quiet","/norestart" -Wait
+          Remove-Item $msi -Force
+          Write-Host "✅ Tailscale installed"
+
+      # ============================================
+      # 🔗 تشغيل Tailscale والحصول على IP
+      # ============================================
+      - name: 🔗 Tailscale Up + Get IP
+        shell: pwsh
+        run: |
+          $ts = "$env:ProgramFiles\Tailscale\tailscale.exe"
+          & $ts up --authkey=${{ secrets.TAILSCALE_AUTH_KEY }} --hostname=gh-$env:GITHUB_RUN_ID --accept-routes
+
+          $ip = $null
+          for ($i=0; $i -lt 12; $i++) {
+              $ip = (& $ts ip -4) 2>$null
+              if ($ip) { break }
+              Start-Sleep -Seconds 3
+          }
+          if (-not $ip) { Write-Error "Tailscale IP not assigned"; exit 1 }
+
+          "TS_IP=$ip" | Out-File -FilePath $env:GITHUB_ENV -Append
+          Write-Host "✅ Tailscale IP: $ip"
+
+      # ============================================
+      # 🧪 فحص سريع لبورت RDP
+      # ============================================
+      - name: 🧪 Quick Port Check
+        shell: pwsh
+        run: |
+          $ok = Test-NetConnection -ComputerName $env:TS_IP -Port 3389 -InformationLevel Quiet
+          if (-not $ok) { Write-Error "RDP port not reachable"; exit 1 }
+          Write-Host "✅ RDP reachable on port 3389"
+
+      # ============================================
+      # 📩 إرسال بيانات الدخول إلى Discord
+      # ============================================
+      - name: 📩 Send Credentials to Discord
+        shell: pwsh
+        run: |
+          $body = @{
+            username = "Alpha RDP Bot"
+            embeds = @(
+              @{
+                title = "🖥️ RDP جاهز يا ألفا"
+                color = 16753920
+                fields = @(
+                  @{ name = "🌐 Address";  value = "``$env:TS_IP``"; inline = $true }
+                  @{ name = "👤 Username"; value = "``$env:RDP_USER``"; inline = $true }
+                  @{ name = "🔑 Password"; value = "``$env:RDP_PASS``"; inline = $false }
+                  @{ name = "🔌 Port";     value = "``3389``"; inline = $true }
+                )
+                footer = @{ text = "Zeta RDP • $(Get-Date -Format 'yyyy-MM-dd HH:mm')" }
+              }
+            )
+          } | ConvertTo-Json -Depth 6
+
+          Invoke-RestMethod -Uri "${{ secrets.DISCORD_WEBHOOK }}" -Method Post -Body $body -ContentType "application/json"
+          Write-Host "✅ Credentials sent to Discord"
+
+      # ============================================
+      # ♻️ إبقاء السيرفر شغال
+      # ============================================
+      - name: ♻️ Keep Alive
+        shell: pwsh
+        run: |
+          Write-Host ""
+          Write-Host "=========================================="
+          Write-Host "   🖥️  RDP ACTIVE - ALPHA ACCESS READY"
+          Write-Host "=========================================="
+          Write-Host "   Check Discord for credentials 📩"
+          Write-Host "=========================================="
+          Write-Host ""
+
+          while ($true) {
+              Write-Host "[$(Get-Date -Format 'HH:mm:ss')] RDP alive..."
+              Start-Sleep -Seconds 600
+          }
