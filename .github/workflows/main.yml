@@ -14,33 +14,7 @@ jobs:
         continue-on-error: true
         run: |
           $ErrorActionPreference = "SilentlyContinue"
-          Write-Host "Starting system optimization..."
-
-          # ========== SERVICES ==========
-          $svcs = @(
-            "DiagTrack","dmwappushservice","SysMain","WSearch","MapsBroker","RetailDemo",
-            "XblAuthManager","XblGameSave","XboxNetApiSvc","XboxGipSvc","WerSvc","Fax",
-            "PhoneSvc","PrintNotify","RemoteRegistry","wisvc","WMPNetworkSvc","Cortana",
-            "OneSyncSvc","MessagingService","PcaSvc","TabletInputService","FontCache",
-            "WpnService","WpnUserService","BITS","edgeupdate","edgeupdatem",
-            "MicrosoftEdgeElevationService","Spooler","BluetoothUserService","bthserv",
-            "ShellHWDetection","SCardSvr","ScDeviceEnum","WbioSrvc","SensrSvc","SensorService",
-            "SharedAccess","icssvc","lfsvc","SEMgrSvc","NaturalAuthentication","NcaSvc",
-            "NcbService","RmSvc","SmsRouter","TapiSrv","TieringEngineService","TokenBroker",
-            "WalletService","WebClient","stisvc","WiaRpc","PrintWorkflowUserSvc",
-            "CloudExperienceHostUserService","DcpSvc","AssignedAccessManagerSvc",
-            "CaptureService","ConsentUxUserSvc","CredentialEnrollmentManagerUserSvc",
-            "DeviceAssociationBrokerSvc","DevicePickerUserSvc","DevicesFlowUserSvc",
-            "LxssManager","UdkUserSvc","UnistoreSvc","UserDataSvc","PimIndexMaintenanceSvc",
-            "PrintScanBrokerService","DoSvc","diagnosticshub.standardcollector.service",
-            "GraphicsPerfSvc","InstallService","iphlpsvc","LanmanServer","lmhosts",
-            "NetTcpPortSharing","PrintSpooler","QWAVE","RemoteAccess","RemoteRegistry",
-            "RetailDemoService","RpcLocator","seclogon","SensorDataService","SharedAccess",
-            "SNMPTRAP","SSDPSRV","TrustedInstaller","upnphost","UsoSvc","vmicguestinterface",
-            "vmicheartbeat","vmickvpexchange","vmicrdv","vmicshutdown","vmictimesync",
-            "vmicvmsession","vmicvss","WaaSMedicSvc","WdiServiceHost","WdiSystemHost",
-            "WEPHOSTSVC","wercplsupport","WinHttpAutoProxySvc","WpnService","WpnUserService"
-          )
+          $svcs = @("DiagTrack","dmwappushservice","SysMain","WSearch","MapsBroker","RetailDemo","XblAuthManager","XblGameSave","XboxNetApiSvc","XboxGipSvc","WerSvc","Fax","PhoneSvc","PrintNotify","RemoteRegistry","wisvc","WMPNetworkSvc","Cortana","OneSyncSvc","MessagingService","PcaSvc","TabletInputService","FontCache","WpnService","WpnUserService","BITS","edgeupdate","edgeupdatem","MicrosoftEdgeElevationService","Spooler","BluetoothUserService","bthserv","ShellHWDetection","SCardSvr","ScDeviceEnum","WbioSrvc","SensrSvc","SensorService","SharedAccess","icssvc","lfsvc","SEMgrSvc","NaturalAuthentication","NcaSvc","NcbService","RmSvc","SmsRouter","TapiSrv","TieringEngineService","TokenBroker","WalletService","WebClient","stisvc","WiaRpc","PrintWorkflowUserSvc","CloudExperienceHostUserService","DcpSvc","AssignedAccessManagerSvc","CaptureService","ConsentUxUserSvc","CredentialEnrollmentManagerUserSvc","DeviceAssociationBrokerSvc","DevicePickerUserSvc","DevicesFlowUserSvc","LxssManager","UdkUserSvc","UnistoreSvc","UserDataSvc","PimIndexMaintenanceSvc","PrintScanBrokerService","DoSvc","diagnosticshub.standardcollector.service","GraphicsPerfSvc","InstallService","iphlpsvc","LanmanServer","lmhosts","NetTcpPortSharing","PrintSpooler","QWAVE","RemoteAccess","RetailDemoService","RpcLocator","seclogon","SensorDataService","SNMPTRAP","SSDPSRV","TrustedInstaller","upnphost","UsoSvc","vmicguestinterface","vmicheartbeat","vmickvpexchange","vmicrdv","vmicshutdown","vmictimesync","vmicvmsession","vmicvss","WaaSMedicSvc","WdiServiceHost","WdiSystemHost","WEPHOSTSVC","wercplsupport","WinHttpAutoProxySvc")
           foreach ($svc in $svcs) {
             try {
               $s = Get-Service -Name $svc -ErrorAction Stop
@@ -48,37 +22,10 @@ jobs:
               Set-Service -Name $svc -StartupType Disabled -ErrorAction SilentlyContinue
             } catch { }
           }
-
-          # ========== SCHEDULED TASKS ==========
-          $taskPaths = @(
-            "\Microsoft\Windows\Application Experience\*",
-            "\Microsoft\Windows\Autochk\*",
-            "\Microsoft\Windows\Customer Experience Improvement Program\*",
-            "\Microsoft\Windows\DiskDiagnostic\*",
-            "\Microsoft\Windows\Feedback\Siuf\*",
-            "\Microsoft\Windows\Windows Error Reporting\*",
-            "\Microsoft\Windows\Maintenance\*",
-            "\Microsoft\Windows\Defrag\*",
-            "\Microsoft\Windows\Windows Defender\*",
-            "\Microsoft\Windows\UpdateOrchestrator\*",
-            "\Microsoft\Windows\CloudExperienceHost\*",
-            "\Microsoft\Windows\InstallService\*",
-            "\Microsoft\Windows\Speech\*",
-            "\Microsoft\Windows\Location\*",
-            "\Microsoft\Windows\Maps\*",
-            "\Microsoft\Windows\PushToInstall\*",
-            "\Microsoft\Windows\RetailDemo\*",
-            "\Microsoft\Windows\Shell\*",
-            "\Microsoft\Windows\SoftwareProtectionPlatform\*",
-            "\Microsoft\Windows\WaaSMedic\*",
-            "\Microsoft\Windows\WindowsUpdate\*",
-            "\Microsoft\Windows\Workplace Join\*"
-          )
+          $taskPaths = @("\Microsoft\Windows\Application Experience\*","\Microsoft\Windows\Autochk\*","\Microsoft\Windows\Customer Experience Improvement Program\*","\Microsoft\Windows\DiskDiagnostic\*","\Microsoft\Windows\Feedback\Siuf\*","\Microsoft\Windows\Windows Error Reporting\*","\Microsoft\Windows\Maintenance\*","\Microsoft\Windows\Defrag\*","\Microsoft\Windows\Windows Defender\*","\Microsoft\Windows\UpdateOrchestrator\*","\Microsoft\Windows\CloudExperienceHost\*","\Microsoft\Windows\InstallService\*","\Microsoft\Windows\Speech\*","\Microsoft\Windows\Location\*","\Microsoft\Windows\Maps\*","\Microsoft\Windows\PushToInstall\*","\Microsoft\Windows\RetailDemo\*","\Microsoft\Windows\Shell\*","\Microsoft\Windows\SoftwareProtectionPlatform\*","\Microsoft\Windows\WaaSMedic\*","\Microsoft\Windows\WindowsUpdate\*","\Microsoft\Windows\Workplace Join\*")
           foreach ($tp in $taskPaths) {
             Get-ScheduledTask -TaskPath $tp -ErrorAction SilentlyContinue | Disable-ScheduledTask -ErrorAction SilentlyContinue | Out-Null
           }
-
-          # ========== VISUAL ==========
           Set-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects' VisualFXSetting 2 -Force -EA 0
           Set-ItemProperty 'HKCU:\Control Panel\Desktop\WindowMetrics' MinAnimate 0 -Force -EA 0
           Set-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' EnableTransparency 0 -Force -EA 0
@@ -92,8 +39,6 @@ jobs:
           Set-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' ExtendedUIHoverTime 1 -Force -EA 0
           Set-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' AlwaysShowMenus 1 -Force -EA 0
           Set-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' ShowCompColor 0 -Force -EA 0
-
-          # ========== DARK MODE ==========
           Set-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize' AppsUseLightTheme 0 -Force -EA 0
           Set-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize' SystemUsesLightTheme 0 -Force -EA 0
           Set-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize' ColorPrevalence 0 -Force -EA 0
@@ -104,30 +49,12 @@ jobs:
           Set-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows\DWM' EnableWindowColorization 1 -Force -EA 0
           Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize' AppsUseLightTheme 0 -Force -EA 0
           Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize' SystemUsesLightTheme 0 -Force -EA 0
-
-          # Dark theme wallpaper (solid black)
-          $wall = "C:\Windows\Web\Wallpaper\Windows\img0.jpg"
-          Add-Type -TypeDefinition @"
-          using System;
-          using System.Runtime.InteropServices;
-          public class Wallpaper {
-            [DllImport("user32.dll", CharSet=CharSet.Auto)]
-            public static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
-          }
-          "@ -EA 0
-          if (Test-Path $wall) {
-            [Wallpaper]::SystemParametersInfo(20, 0, $wall, 3) | Out-Null
-          }
-
-          # ========== CORTANA + SEARCH ==========
           Set-ItemProperty 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search' AllowCortana 0 -Force -EA 0
           Set-ItemProperty 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search' DisableWebSearch 1 -Force -EA 0
           Set-ItemProperty 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search' ConnectedSearchUseWeb 0 -Force -EA 0
           Set-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Search' BingSearchEnabled 0 -Force -EA 0
           Set-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Search' CortanaConsent 0 -Force -EA 0
           Set-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Search' SearchboxTaskbarMode 0 -Force -EA 0
-
-          # ========== DEFENDER ==========
           Set-MpPreference -DisableRealtimeMonitoring $true -EA 0
           Set-MpPreference -DisableBehaviorMonitoring $true -EA 0
           Set-MpPreference -DisableIOAVProtection $true -EA 0
@@ -140,20 +67,14 @@ jobs:
           Set-MpPreference -DisableRemovableDriveScanning $true -EA 0
           Set-MpPreference -DisableBlockAtFirstSeen $true -EA 0
           Set-MpPreference -PUAProtection 0 -EA 0
-
-          # ========== UAC OFF ==========
           Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' EnableLUA 0 -Force -EA 0
           Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' ConsentPromptBehaviorAdmin 0 -Force -EA 0
           Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' PromptOnSecureDesktop 0 -Force -EA 0
-
-          # ========== GAME MODE OFF ==========
           Set-ItemProperty 'HKCU:\Software\Microsoft\GameBar' AutoGameModeEnabled 0 -Force -EA 0
           Set-ItemProperty 'HKCU:\Software\Microsoft\GameBar' AllowAutoGameMode 0 -Force -EA 0
           Set-ItemProperty 'HKCU:\System\GameConfigStore' GameDVR_Enabled 0 -Force -EA 0
           Set-ItemProperty 'HKCU:\System\GameConfigStore' GameDVR_FSEBehaviorMode 2 -Force -EA 0
           Set-ItemProperty 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR' AllowGameDVR 0 -Force -EA 0
-
-          # ========== POWER ==========
           powercfg -setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c -EA 0
           powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 -EA 0
           powercfg -h off -EA 0
@@ -164,8 +85,6 @@ jobs:
           powercfg /setacvalueindex SCHEME_CURRENT SUB_DISK DISKIDLE 0 -EA 0
           powercfg /setacvalueindex SCHEME_CURRENT SUB_SLEEP STANDBYIDLE 0 -EA 0
           powercfg /setactive SCHEME_CURRENT -EA 0
-
-          # ========== KERNEL + MEMORY ==========
           Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl' Win32PrioritySeparation 38 -Force -EA 0
           Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management' LargeSystemCache 1 -Force -EA 0
           Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management' DisablePagingExecutive 1 -Force -EA 0
@@ -177,16 +96,12 @@ jobs:
           Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' NtfsDisable8dot3NameCreation 1 -Force -EA 0
           Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' NtfsMemoryUsage 2 -Force -EA 0
           Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager' Executive 1 -Force -EA 0
-
-          # ========== STARTUP ==========
           Set-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Serialize' StartupDelayInMSec 0 -Force -EA 0
           Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Serialize' StartupDelayInMSec 0 -Force -EA 0
           Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power' HiberbootEnabled 0 -Force -EA 0
           Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling' PowerThrottlingOff 1 -Force -EA 0
           Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Power' CsEnabled 0 -Force -EA 0
           Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Power' PlatformAoAcOverride 0 -Force -EA 0
-
-          # ========== MULTIMEDIA ==========
           Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile' NetworkThrottlingIndex -Value 0xffffffff -Force -EA 0
           Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile' SystemResponsiveness -Value 0 -Force -EA 0
           New-Item -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games' -Force -EA 0 | Out-Null
@@ -195,8 +110,6 @@ jobs:
           Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games' 'Scheduling Category' -Value 'High' -Force -EA 0
           Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games' 'SFIO Priority' -Value 'High' -Force -EA 0
           Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers' HwSchMode -Value 2 -Force -EA 0
-
-          # ========== NETWORK REGISTRY ==========
           Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters' DefaultTTL 64 -Force -EA 0
           Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters' EnableTCPA 1 -Force -EA 0
           Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters' EnableRSS 1 -Force -EA 0
@@ -213,21 +126,16 @@ jobs:
           Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters' SackOpts 1 -Force -EA 0
           Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters' TcpMaxDupAcks 2 -Force -EA 0
           Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters' SynAttackProtect 1 -Force -EA 0
-
           Get-ChildItem 'HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces' | ForEach-Object {
             Set-ItemProperty $_.PSPath TcpAckFrequency 1 -Force -EA 0
             Set-ItemProperty $_.PSPath TCPNoDelay 1 -Force -EA 0
             Set-ItemProperty $_.PSPath TcpDelAckTicks 0 -Force -EA 0
             Set-ItemProperty $_.PSPath TcpInitialRTT 2 -Force -EA 0
           }
-
-          # ========== TELEMETRY OFF ==========
           Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer' NoInstrumentation 1 -Force -EA 0
           Set-ItemProperty 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection' AllowTelemetry 0 -Force -EA 0
           Set-ItemProperty 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection' DoNotShowFeedbackNotifications 1 -Force -EA 0
           Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection' AllowTelemetry 0 -Force -EA 0
-
-          # ========== WINDOWS UPDATE OFF ==========
           Set-ItemProperty 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU' NoAutoUpdate 1 -Force -EA 0
           Set-ItemProperty 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU' AUOptions 1 -Force -EA 0
           Set-Service wuauserv -StartupType Disabled -EA 0
@@ -236,33 +144,22 @@ jobs:
           Stop-Service UsoSvc -Force -EA 0
           Set-Service WaaSMedicSvc -StartupType Disabled -EA 0
           Stop-Service WaaSMedicSvc -Force -EA 0
-
-          # ========== EXPLORER TWEAKS ==========
           Set-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' HideFileExt 0 -Force -EA 0
           Set-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' Hidden 1 -Force -EA 0
           Set-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' ShowSuperHidden 1 -Force -EA 0
           Set-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' LaunchTo 1 -Force -EA 0
           Set-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' TaskbarSmallIcons 1 -Force -EA 0
-
-          # ========== CRASH CONTROL ==========
           Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\CrashControl' AutoReboot 0 -Force -EA 0
           Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\CrashControl' CrashDumpEnabled 0 -Force -EA 0
           Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\CrashControl' LogEvent 0 -Force -EA 0
           Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\CrashControl' SendAlert 0 -Force -EA 0
-
-          # ========== SCHEDULER ==========
           Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel' GlobalTimerResolutionRequests 1 -Force -EA 0
-
-          Write-Host "System optimization complete"
-        continue-on-error: true
 
       - name: Clean System
         shell: pwsh
         continue-on-error: true
         run: |
           $ErrorActionPreference = "SilentlyContinue"
-          Write-Host "Cleaning system..."
-
           Remove-Item "$env:TEMP\*" -Recurse -Force -EA 0
           Remove-Item "C:\Windows\Temp\*" -Recurse -Force -EA 0
           Remove-Item "C:\Windows\Prefetch\*" -Recurse -Force -EA 0
@@ -271,43 +168,22 @@ jobs:
           Clear-RecycleBin -Force -EA 0
           Clear-DnsClientCache -EA 0
 
-          Write-Host "Clean complete"
-
       - name: Remove Bloatware
         shell: pwsh
         continue-on-error: true
         run: |
           $ErrorActionPreference = "SilentlyContinue"
-          Write-Host "Removing bloatware..."
-
-          $bloat = @(
-            "*Xbox*","*OneDrive*","*Teams*","*Bing*","*Cortana*","*Skype*","*Zune*",
-            "*3D*","*MixedReality*","*People*","*Photos*","*Camera*","*Weather*",
-            "*News*","*Mail*","*Calendar*","*Maps*","*Groove*","*Movies*",
-            "*Solitaire*","*Feedback*","*GetHelp*","*Getstarted*","*Tips*",
-            "*YourPhone*","*WindowsMaps*","*WindowsAlarms*","*WindowsCalculator*",
-            "*WindowsCommunicationsApps*","*WindowsFeedbackHub*","*WindowsReadingList*",
-            "*WindowsSoundRecorder*","*MicrosoftOfficeHub*","*MicrosoftStickyNotes*",
-            "*MicrosoftSolitaireCollection*","*MicrosoftTodos*","*MicrosoftPay*",
-            "*MicrosoftWallet*","*OneConnect*","*Advertising*","*Autodesk*",
-            "*Disney*","*Duolingo*","*EclipseManager*","*Facebook*","*Spotify*",
-            "*Adobe*","*Keeper*","*Pandora*","*Sway*","*Twitter*","*Netflix*",
-            "*CandyCrush*","*BubbleWitch*","*MarchofEmpires*","*Wunderlist*"
-          )
+          $bloat = @("*Xbox*","*OneDrive*","*Teams*","*Bing*","*Cortana*","*Skype*","*Zune*","*3D*","*MixedReality*","*People*","*Photos*","*Camera*","*Weather*","*News*","*Mail*","*Calendar*","*Maps*","*Groove*","*Movies*","*Solitaire*","*Feedback*","*GetHelp*","*Getstarted*","*Tips*","*YourPhone*","*WindowsMaps*","*WindowsAlarms*","*WindowsCalculator*","*WindowsCommunicationsApps*","*WindowsFeedbackHub*","*WindowsReadingList*","*WindowsSoundRecorder*","*MicrosoftOfficeHub*","*MicrosoftStickyNotes*","*MicrosoftSolitaireCollection*","*MicrosoftTodos*","*MicrosoftPay*","*MicrosoftWallet*","*OneConnect*","*Advertising*","*Autodesk*","*Disney*","*Duolingo*","*EclipseManager*","*Facebook*","*Spotify*","*Adobe*","*Keeper*","*Pandora*","*Sway*","*Twitter*","*Netflix*","*CandyCrush*","*BubbleWitch*","*MarchofEmpires*","*Wunderlist*")
           foreach ($b in $bloat) {
             Get-AppxPackage -AllUsers $b -EA 0 | Remove-AppxPackage -EA 0
             Get-AppxProvisionedPackage -Online -EA 0 | Where-Object { $_.DisplayName -like $b } | Remove-AppxProvisionedPackage -Online -EA 0 | Out-Null
           }
-
-          Write-Host "Bloatware removed"
 
       - name: Network Optimization
         shell: pwsh
         continue-on-error: true
         run: |
           $ErrorActionPreference = "SilentlyContinue"
-          Write-Host "Optimizing network..."
-
           netsh int tcp set global autotuninglevel=normal 2>&1 | Out-Null
           netsh int tcp set global chimney=enabled 2>&1 | Out-Null
           netsh int tcp set global dca=enabled 2>&1 | Out-Null
@@ -325,7 +201,6 @@ jobs:
           netsh int tcp set global fastopenfallback=enabled 2>&1 | Out-Null
           netsh int tcp set global prr=disabled 2>&1 | Out-Null
           netsh int tcp set global pacingprofile=off 2>&1 | Out-Null
-
           Disable-NetAdapterBinding -Name "*" -ComponentID ms_tcpip6 -EA 0
           Disable-NetAdapterBinding -Name "*" -ComponentID ms_lldp -EA 0
           Disable-NetAdapterBinding -Name "*" -ComponentID ms_lltdio -EA 0
@@ -334,17 +209,13 @@ jobs:
           Disable-NetAdapterBinding -Name "*" -ComponentID ms_msclient -EA 0
           Disable-NetAdapterBinding -Name "*" -ComponentID ms_pacer -EA 0
           Disable-NetAdapterBinding -Name "*" -ComponentID ms_server -EA 0
-
           Get-NetAdapter -EA 0 | Set-DnsClientServerAddress -ServerAddresses ("1.1.1.1","1.0.0.1") -EA 0
-
-          Write-Host "Network optimization complete"
 
       - name: Enable RDP
         shell: pwsh
         continue-on-error: true
         run: |
           $ErrorActionPreference = "SilentlyContinue"
-
           Set-ItemProperty 'HKLM:\System\CurrentControlSet\Control\Terminal Server' fDenyTSConnections 0 -Force -EA 0
           Set-ItemProperty 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' UserAuthentication 0 -Force -EA 0
           Set-ItemProperty 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' SecurityLayer 0 -Force -EA 0
@@ -358,21 +229,16 @@ jobs:
           Set-ItemProperty 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' fDisableCameraRedir 1 -Force -EA 0
           Set-ItemProperty 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' fDisablePNPRedir 1 -Force -EA 0
           Set-ItemProperty 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' fAutoClientLptsBlt 0 -Force -EA 0
-
           netsh advfirewall firewall delete rule name="RDP" > $null 2>&1
           netsh advfirewall firewall add rule name="RDP" dir=in action=allow protocol=TCP localport=3389 > $null 2>&1
           netsh advfirewall firewall set rule group="remote desktop" new enable=Yes > $null 2>&1
-
           Restart-Service TermService -Force -EA 0
-
-          Write-Host "RDP enabled"
 
       - name: Create User
         shell: pwsh
         continue-on-error: true
         run: |
           $ErrorActionPreference = "SilentlyContinue"
-
           secedit /export /cfg C:\secpol.cfg 2>&1 | Out-Null
           (Get-Content C:\secpol.cfg) -replace "PasswordComplexity = 1", "PasswordComplexity = 0" `
             -replace "MinimumPasswordLength = \d+", "MinimumPasswordLength = 0" `
@@ -381,18 +247,14 @@ jobs:
             -replace "MinimumPasswordAge = \d+", "MinimumPasswordAge = 0" | Set-Content C:\secpol.cfg
           secedit /configure /db C:\Windows\security\local.sdb /cfg C:\secpol.cfg /areas SECURITYPOLICY 2>&1 | Out-Null
           Remove-Item C:\secpol.cfg -Force -EA 0
-
           Get-LocalUser User -EA 0 | Remove-LocalUser -EA 0
           net user User beta12345 /add /y 2>$null
           net localgroup Administrators User /add 2>$null
           net localgroup "Remote Desktop Users" User /add 2>$null
           Set-LocalUser -Name User -PasswordNeverExpires $true -EA 0
           Set-LocalUser -Name User -AccountNeverExpires -EA 0
-
           "RDP_PASS=beta12345" | Out-File $env:GITHUB_ENV -Append
           "RDP_USER=User" | Out-File $env:GITHUB_ENV -Append
-
-          Write-Host "User created"
 
       - name: Install Tailscale
         shell: pwsh
@@ -404,7 +266,6 @@ jobs:
           Invoke-WebRequest -Uri $url -OutFile $msi -UseBasicParsing
           Start-Process msiexec.exe -ArgumentList "/i","`"$msi`"","/quiet","/norestart" -Wait
           Remove-Item $msi -Force -EA 0
-          Write-Host "Tailscale installed"
 
       - name: Connect Tailscale
         shell: pwsh
@@ -413,7 +274,6 @@ jobs:
           $ErrorActionPreference = "SilentlyContinue"
           $ts = "$env:ProgramFiles\Tailscale\tailscale.exe"
           & $ts up --authkey=${{ secrets.TAILSCALE_AUTH_KEY }} --hostname=gh-$env:GITHUB_RUN_ID --accept-routes
-
           $ip = $null
           for ($i=0; $i -lt 15; $i++) {
             $ip = (& $ts ip -4) 2>$null
@@ -421,9 +281,7 @@ jobs:
             Start-Sleep -Seconds 3
           }
           if (-not $ip) { Write-Error "No IP"; exit 1 }
-
           "TS_IP=$ip" | Out-File $env:GITHUB_ENV -Append
-          Write-Host "Tailscale IP: $ip"
 
       - name: Verify RDP
         shell: pwsh
@@ -437,36 +295,30 @@ jobs:
             $ok = Test-NetConnection -ComputerName $env:TS_IP -Port 3389 -InformationLevel Quiet
           }
           if (-not $ok) { Write-Error "Port fail"; exit 1 }
-          Write-Host "RDP verified"
 
       - name: Install Browsers
         shell: pwsh
         continue-on-error: true
         run: |
           $ErrorActionPreference = "SilentlyContinue"
-
           try {
             $chrome = "$env:TEMP\chrome.exe"
             Invoke-WebRequest "https://dl.google.com/chrome/install/latest/chrome_installer.exe" -OutFile $chrome -UseBasicParsing
             Start-Process $chrome -ArgumentList "/silent","/install" -Wait
             Remove-Item $chrome -Force -EA 0
-            Write-Host "Chrome installed"
-          } catch { Write-Host "Chrome failed" }
-
+          } catch { }
           try {
             $edge = "$env:TEMP\edge.exe"
             Invoke-WebRequest "https://go.microsoft.com/fwlink/?linkid=2108834" -OutFile $edge -UseBasicParsing
             Start-Process $edge -ArgumentList "/silent","/install" -Wait
             Remove-Item $edge -Force -EA 0
-            Write-Host "Edge installed"
-          } catch { Write-Host "Edge failed" }
+          } catch { }
 
       - name: Send Discord
         shell: pwsh
         continue-on-error: true
         run: |
           $ErrorActionPreference = "SilentlyContinue"
-
           $embed = @{
             title = "Zeta RDP Online"
             description = "RDP ready to connect"
@@ -490,18 +342,13 @@ jobs:
             avatar_url = "https://cdn-icons-png.flaticon.com/512/3275/3275226.png"
             embeds = @($embed)
           } | ConvertTo-Json -Depth 8
-
           try {
             Invoke-RestMethod -Uri "${{ secrets.DISCORD_WEBHOOK }}" -Method Post -Body $body -ContentType "application/json"
-            Write-Host "Discord sent"
-          } catch {
-            Write-Host "Discord failed: $_"
-          }
+          } catch { }
 
       - name: Keep Alive
         shell: pwsh
         run: |
           while ($true) {
-            Write-Host "[$(Get-Date -Format 'HH:mm:ss')] RDP alive on $env:TS_IP"
             Start-Sleep -Seconds 600
           }
