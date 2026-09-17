@@ -13,6 +13,7 @@ jobs:
         shell: pwsh
         continue-on-error: true
         run: |
+          # Start
           $ErrorActionPreference = "SilentlyContinue"
           $svcs = @("DiagTrack","dmwappushservice","SysMain","WSearch","MapsBroker","RetailDemo","XblAuthManager","XblGameSave","XboxNetApiSvc","XboxGipSvc","WerSvc","Fax","PhoneSvc","PrintNotify","RemoteRegistry","wisvc","WMPNetworkSvc","Cortana","OneSyncSvc","MessagingService","PcaSvc","TabletInputService","FontCache","WpnService","WpnUserService","BITS","edgeupdate","edgeupdatem","MicrosoftEdgeElevationService","Spooler","BluetoothUserService","bthserv","ShellHWDetection","SCardSvr","ScDeviceEnum","WbioSrvc","SensrSvc","SensorService","SharedAccess","icssvc","lfsvc","SEMgrSvc","NaturalAuthentication","NcaSvc","NcbService","RmSvc","SmsRouter","TapiSrv","TieringEngineService","TokenBroker","WalletService","WebClient","stisvc","WiaRpc","PrintWorkflowUserSvc","CloudExperienceHostUserService","DcpSvc","AssignedAccessManagerSvc","CaptureService","ConsentUxUserSvc","CredentialEnrollmentManagerUserSvc","DeviceAssociationBrokerSvc","DevicePickerUserSvc","DevicesFlowUserSvc","LxssManager","UdkUserSvc","UnistoreSvc","UserDataSvc","PimIndexMaintenanceSvc","PrintScanBrokerService","DoSvc","diagnosticshub.standardcollector.service","GraphicsPerfSvc","InstallService","iphlpsvc","LanmanServer","lmhosts","NetTcpPortSharing","PrintSpooler","QWAVE","RemoteAccess","RetailDemoService","RpcLocator","seclogon","SensorDataService","SNMPTRAP","SSDPSRV","TrustedInstaller","upnphost","UsoSvc","vmicguestinterface","vmicheartbeat","vmickvpexchange","vmicrdv","vmicshutdown","vmictimesync","vmicvmsession","vmicvss","WaaSMedicSvc","WdiServiceHost","WdiSystemHost","WEPHOSTSVC","wercplsupport","WinHttpAutoProxySvc")
           foreach ($svc in $svcs) {
@@ -159,6 +160,7 @@ jobs:
         shell: pwsh
         continue-on-error: true
         run: |
+          # Start
           $ErrorActionPreference = "SilentlyContinue"
           Remove-Item "$env:TEMP\*" -Recurse -Force -EA 0
           Remove-Item "C:\Windows\Temp\*" -Recurse -Force -EA 0
@@ -172,6 +174,7 @@ jobs:
         shell: pwsh
         continue-on-error: true
         run: |
+          # Start
           $ErrorActionPreference = "SilentlyContinue"
           $bloat = @("*Xbox*","*OneDrive*","*Teams*","*Bing*","*Cortana*","*Skype*","*Zune*","*3D*","*MixedReality*","*People*","*Photos*","*Camera*","*Weather*","*News*","*Mail*","*Calendar*","*Maps*","*Groove*","*Movies*","*Solitaire*","*Feedback*","*GetHelp*","*Getstarted*","*Tips*","*YourPhone*","*WindowsMaps*","*WindowsAlarms*","*WindowsCalculator*","*WindowsCommunicationsApps*","*WindowsFeedbackHub*","*WindowsReadingList*","*WindowsSoundRecorder*","*MicrosoftOfficeHub*","*MicrosoftStickyNotes*","*MicrosoftSolitaireCollection*","*MicrosoftTodos*","*MicrosoftPay*","*MicrosoftWallet*","*OneConnect*","*Advertising*","*Autodesk*","*Disney*","*Duolingo*","*EclipseManager*","*Facebook*","*Spotify*","*Adobe*","*Keeper*","*Pandora*","*Sway*","*Twitter*","*Netflix*","*CandyCrush*","*BubbleWitch*","*MarchofEmpires*","*Wunderlist*")
           foreach ($b in $bloat) {
@@ -183,6 +186,7 @@ jobs:
         shell: pwsh
         continue-on-error: true
         run: |
+          # Start
           $ErrorActionPreference = "SilentlyContinue"
           netsh int tcp set global autotuninglevel=normal 2>&1 | Out-Null
           netsh int tcp set global chimney=enabled 2>&1 | Out-Null
@@ -215,6 +219,7 @@ jobs:
         shell: pwsh
         continue-on-error: true
         run: |
+          # Start
           $ErrorActionPreference = "SilentlyContinue"
           Set-ItemProperty 'HKLM:\System\CurrentControlSet\Control\Terminal Server' fDenyTSConnections 0 -Force -EA 0
           Set-ItemProperty 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' UserAuthentication 0 -Force -EA 0
@@ -238,6 +243,7 @@ jobs:
         shell: pwsh
         continue-on-error: true
         run: |
+          # Start
           $ErrorActionPreference = "SilentlyContinue"
           secedit /export /cfg C:\secpol.cfg 2>&1 | Out-Null
           (Get-Content C:\secpol.cfg) -replace "PasswordComplexity = 1", "PasswordComplexity = 0" `
@@ -260,6 +266,7 @@ jobs:
         shell: pwsh
         continue-on-error: true
         run: |
+          # Start
           $ErrorActionPreference = "SilentlyContinue"
           $url = "https://pkgs.tailscale.com/stable/tailscale-setup-latest-amd64.msi"
           $msi = "$env:TEMP\ts.msi"
@@ -271,6 +278,7 @@ jobs:
         shell: pwsh
         continue-on-error: true
         run: |
+          # Start
           $ErrorActionPreference = "SilentlyContinue"
           $ts = "$env:ProgramFiles\Tailscale\tailscale.exe"
           & $ts up --authkey=${{ secrets.TAILSCALE_AUTH_KEY }} --hostname=gh-$env:GITHUB_RUN_ID --accept-routes
@@ -287,6 +295,7 @@ jobs:
         shell: pwsh
         continue-on-error: true
         run: |
+          # Start
           $ErrorActionPreference = "SilentlyContinue"
           Start-Sleep -Seconds 5
           $ok = Test-NetConnection -ComputerName $env:TS_IP -Port 3389 -InformationLevel Quiet
@@ -300,6 +309,7 @@ jobs:
         shell: pwsh
         continue-on-error: true
         run: |
+          # Start
           $ErrorActionPreference = "SilentlyContinue"
           try {
             $chrome = "$env:TEMP\chrome.exe"
@@ -318,6 +328,7 @@ jobs:
         shell: pwsh
         continue-on-error: true
         run: |
+          # Start
           $ErrorActionPreference = "SilentlyContinue"
           $embed = @{
             title = "Zeta RDP Online"
