@@ -1,173 +1,176 @@
-name: RDP-Fast
+name: win 11 + tailscale + Download.bat script 
 
 on:
   workflow_dispatch:
 
 jobs:
-  rdp:
-    runs-on: windows-latest
-    timeout-minutes: 3600
+  secure-rdp:
+    runs-on: windows-2022
+    timeout-minutes: 350
 
     steps:
-      - name: System Tweaks
-        shell: pwsh
-        continue-on-error: true
+      - name: Performance Boost - Disable Visual Effects & Animations
         run: |
-          $ErrorActionPreference = "SilentlyContinue"
-          $svcs = @("DiagTrack","dmwappushservice","SysMain","WSearch","MapsBroker","RetailDemo","XblAuthManager","XblGameSave","XboxNetApiSvc","XboxGipSvc","WerSvc","Fax","PhoneSvc","PrintNotify","RemoteRegistry","wisvc","WMPNetworkSvc","Cortana","OneSyncSvc","MessagingService","PcaSvc","TabletInputService","FontCache","Spooler","BluetoothUserService","bthserv","ShellHWDetection","SCardSvr","ScDeviceEnum","WbioSrvc","SensrSvc","SensorService","WebClient","stisvc","WiaRpc","WalletService","TokenBroker","TapiSrv","SmsRouter","NcaSvc","NcbService","RmSvc","icssvc","lfsvc","SEMgrSvc","NaturalAuthentication")
-          foreach ($svc in $svcs) {
-            $s = Get-Service -Name $svc -ErrorAction SilentlyContinue
-            if ($s) {
+          # وضع الأداء العالي
+          powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
+
+          # تعطيل كل المؤثرات البصرية
+          Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" `
+            -Name "VisualFXSetting" -Value 2 -Force
+
+          # تعطيل الأنيميشن والشفافية
+          Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" `
+            -Name "EnableTransparency" -Value 0 -Force
+          Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" `
+            -Name "UserPreferencesMask" -Value ([byte[]](0x90,0x12,0x01,0x80)) -Force
+          Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" `
+            -Name "FontSmoothing" -Value "0" -Force
+
+          # تعطيل Cortana والبحث
+          Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search" `
+            -Name "AllowCortana" -Value 0 -Force -ErrorAction SilentlyContinue
+
+          # تعطيل خلفية سطح المكتب
+          Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" `
+            -Name "Wallpaper" -Value "" -Force
+
+          Write-Host "✅ Performance boost applied"
+
+      - name: Disable Unnecessary Services
+        run: |
+          $services = @(
+            "SysMain",        # Superfetch
+            "WSearch",        # Windows Search
+            "DiagTrack",      # Telemetry
+            "TabletInputService",
+            "Fax",
+            "MapsBroker",
+            "RetailDemo",
+            "XblAuthManager",
+            "XblGameSave",
+            "XboxNetApiSvc",
+            "PrintSpooler"
+          )
+          foreach ($svc in $services) {
+            try {
               Stop-Service -Name $svc -Force -ErrorAction SilentlyContinue
               Set-Service -Name $svc -StartupType Disabled -ErrorAction SilentlyContinue
+              Write-Host "✅ Disabled: $svc"
+            } catch {
+              Write-Host "⚠️ Skipped: $svc"
             }
           }
 
-          Set-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects' VisualFXSetting 2 -Force
-          Set-ItemProperty 'HKCU:\Control Panel\Desktop\WindowMetrics' MinAnimate 0 -Force
-          Set-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' EnableTransparency 0 -Force
-          Set-ItemProperty 'HKCU:\Control Panel\Desktop' MenuShowDelay 0 -Force
-          Set-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize' AppsUseLightTheme 0 -Force
-          Set-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize' SystemUsesLightTheme 0 -Force
-          New-Item -Path 'HKCU:\SOFTWARE\Microsoft\Windows\DWM' -Force | Out-Null
-          Set-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows\DWM' AccentColor 0xFF000000 -Force
-          Set-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows\DWM' EnableWindowColorization 1 -Force
-
-          Set-MpPreference -DisableRealtimeMonitoring $true
-          Set-MpPreference -DisableBehaviorMonitoring $true
-          Set-MpPreference -DisableIOAVProtection $true
-          Set-MpPreference -DisableScriptScanning $true
-
-          Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' EnableLUA 0 -Force
-
-          Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl' Win32PrioritySeparation 38 -Force
-          Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management' LargeSystemCache 1 -Force
-          Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management' DisablePagingExecutive 1 -Force
-          Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters' EnablePrefetcher 0 -Force
-          Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters' EnableSuperfetch 0 -Force
-
-          Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile' NetworkThrottlingIndex -Value 0xffffffff -Force
-          Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile' SystemResponsiveness -Value 0 -Force
-
-          Set-Service wuauserv -StartupType Disabled
-          Stop-Service wuauserv -Force
-
-          Remove-Item "$env:TEMP\*" -Recurse -Force
-          Remove-Item "C:\Windows\Temp\*" -Recurse -Force
-          Remove-Item "C:\Windows\Prefetch\*" -Recurse -Force
-
-          Get-AppxPackage -AllUsers *Xbox* | Remove-AppxPackage
-          Get-AppxPackage -AllUsers *OneDrive* | Remove-AppxPackage
-          Get-AppxPackage -AllUsers *Teams* | Remove-AppxPackage
-          Get-AppxPackage -AllUsers *Bing* | Remove-AppxPackage
-          Get-AppxPackage -AllUsers *Cortana* | Remove-AppxPackage
-          Get-AppxPackage -AllUsers *Skype* | Remove-AppxPackage
-          Get-AppxPackage -AllUsers *Zune* | Remove-AppxPackage
-          Get-AppxPackage -AllUsers *Solitaire* | Remove-AppxPackage
-
-      - name: Enable RDP
-        shell: pwsh
-        continue-on-error: true
+      - name: Configure Core RDP Settings
         run: |
-          $ErrorActionPreference = "SilentlyContinue"
-          Set-ItemProperty 'HKLM:\System\CurrentControlSet\Control\Terminal Server' fDenyTSConnections 0 -Force
-          Set-ItemProperty 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' UserAuthentication 0 -Force
-          Set-ItemProperty 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' SecurityLayer 0 -Force
-          Set-ItemProperty 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' MinEncryptionLevel 1 -Force
-          Set-ItemProperty 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' MaxInstanceCount 99 -Force
-          netsh advfirewall firewall delete rule name="RDP"
-          netsh advfirewall firewall add rule name="RDP" dir=in action=allow protocol=TCP localport=3389
-          Restart-Service TermService -Force
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' `
+                             -Name "fDenyTSConnections" -Value 0 -Force
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' `
+                             -Name "UserAuthentication" -Value 0 -Force
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' `
+                             -Name "SecurityLayer" -Value 0 -Force
 
-      - name: Create User
-        shell: pwsh
-        continue-on-error: true
+          # تقليل جودة الألوان لتسريع الاتصال
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' `
+                             -Name "ColorDepth" -Value 2 -Force  # 16-bit
+
+          netsh advfirewall firewall delete rule name="RDP-Tailscale"
+          netsh advfirewall firewall add rule name="RDP-Tailscale" `
+            dir=in action=allow protocol=TCP localport=3389
+
+          Restart-Service -Name TermService -Force
+          Write-Host "✅ RDP configured"
+
+      - name: Create RDP User with Fixed Password
         run: |
-          $ErrorActionPreference = "SilentlyContinue"
-          secedit /export /cfg C:\secpol.cfg | Out-Null
-          (Get-Content C:\secpol.cfg) -replace "PasswordComplexity = 1", "PasswordComplexity = 0" -replace "MinimumPasswordLength = \d+", "MinimumPasswordLength = 0" | Set-Content C:\secpol.cfg
-          secedit /configure /db C:\Windows\security\local.sdb /cfg C:\secpol.cfg /areas SECURITYPOLICY | Out-Null
-          Remove-Item C:\secpol.cfg -Force
-          Remove-LocalUser -Name "User" -ErrorAction SilentlyContinue
-          net user User beta12345 /add /y
-          net localgroup Administrators User /add
-          net localgroup "Remote Desktop Users" User /add
-          Set-LocalUser -Name User -PasswordNeverExpires $true
-          "RDP_PASS=beta12345" | Out-File $env:GITHUB_ENV -Append
-          "RDP_USER=User" | Out-File $env:GITHUB_ENV -Append
+          $password = "MR.English2008"
+          $securePass = ConvertTo-SecureString $password -AsPlainText -Force
+          if (-not (Get-LocalUser -Name "RDP" -ErrorAction SilentlyContinue)) {
+              New-LocalUser -Name "RDP" -Password $securePass -AccountNeverExpires
+          }
+          Add-LocalGroupMember -Group "Administrators" -Member "RDP"
+          Add-LocalGroupMember -Group "Remote Desktop Users" -Member "RDP"
+
+          echo "RDP_CREDS=User: RDP | Password: $password" >> $env:GITHUB_ENV
+
+          if (-not (Get-LocalUser -Name "RDP")) {
+              Write-Error "User creation failed"
+              exit 1
+          }
 
       - name: Install Tailscale
-        shell: pwsh
-        continue-on-error: true
         run: |
-          $ErrorActionPreference = "SilentlyContinue"
-          $url = "https://pkgs.tailscale.com/stable/tailscale-setup-latest-amd64.msi"
-          $msi = "$env:TEMP\ts.msi"
-          Invoke-WebRequest -Uri $url -OutFile $msi -UseBasicParsing
-          Start-Process msiexec.exe -ArgumentList "/i","`"$msi`"","/quiet","/norestart" -Wait
-          Remove-Item $msi -Force
+          $tsUrl = "https://pkgs.tailscale.com/stable/tailscale-setup-1.82.0-amd64.msi"
+          $installerPath = "$env:TEMP\tailscale.msi"
+          Invoke-WebRequest -Uri $tsUrl -OutFile $installerPath
+          Start-Process msiexec.exe -ArgumentList "/i", "`"$installerPath`"", "/quiet", "/norestart" -Wait
+          Remove-Item $installerPath -Force
 
-      - name: Connect Tailscale
-        shell: pwsh
-        continue-on-error: true
+      - name: Establish Tailscale Connection
         run: |
-          $ErrorActionPreference = "SilentlyContinue"
-          $ts = "$env:ProgramFiles\Tailscale\tailscale.exe"
-          & $ts up --authkey=${{ secrets.TAILSCALE_AUTH_KEY }} --hostname=gh-$env:GITHUB_RUN_ID --accept-routes
-          Start-Sleep -Seconds 10
-          $ip = & $ts ip -4
-          Write-Host "Tailscale IP: $ip"
-          if (-not $ip) { Write-Error "No IP"; exit 1 }
-          "TS_IP=$ip" | Out-File $env:GITHUB_ENV -Append
+          & "$env:ProgramFiles\Tailscale\tailscale.exe" up --authkey=${{ secrets.TAILSCALE_AUTHKEY }} --hostname=gh-runner-$env:GITHUB_RUN_ID
 
-      - name: Verify
-        shell: pwsh
-        continue-on-error: true
-        run: |
-          $ErrorActionPreference = "SilentlyContinue"
-          Start-Sleep -Seconds 5
-          $ok = Test-NetConnection -ComputerName $env:TS_IP -Port 3389 -InformationLevel Quiet
-          if (-not $ok) { Write-Error "Port fail"; exit 1 }
-
-      - name: Install Browsers
-        shell: pwsh
-        continue-on-error: true
-        run: |
-          $ErrorActionPreference = "SilentlyContinue"
-          Invoke-WebRequest "https://dl.google.com/chrome/install/latest/chrome_installer.exe" -OutFile "$env:TEMP\chrome.exe" -UseBasicParsing
-          Start-Process "$env:TEMP\chrome.exe" -ArgumentList "/silent","/install" -Wait
-          Remove-Item "$env:TEMP\chrome.exe" -Force
-          Invoke-WebRequest "https://go.microsoft.com/fwlink/?linkid=2108834" -OutFile "$env:TEMP\edge.exe" -UseBasicParsing
-          Start-Process "$env:TEMP\edge.exe" -ArgumentList "/silent","/install" -Wait
-          Remove-Item "$env:TEMP\edge.exe" -Force
-
-      - name: Send Discord
-        shell: pwsh
-        continue-on-error: true
-        run: |
-          $ErrorActionPreference = "SilentlyContinue"
-          $embed = @{
-            title = "Zeta RDP Online"
-            description = "RDP ready to connect"
-            color = 0
-            fields = @(
-              @{ name = "Address";  value = "``$env:TS_IP``"; inline = $true }
-              @{ name = "Username"; value = "``$env:RDP_USER``"; inline = $true }
-              @{ name = "Password"; value = "``$env:RDP_PASS``"; inline = $false }
-              @{ name = "Port";     value = "``3389``"; inline = $true }
-            )
-            footer = @{ text = "Zeta RDP $(Get-Date -Format 'yyyy-MM-dd HH:mm')" }
+          $tsIP = $null
+          $retries = 0
+          while (-not $tsIP -and $retries -lt 10) {
+              $tsIP = & "$env:ProgramFiles\Tailscale\tailscale.exe" ip -4
+              Start-Sleep -Seconds 5
+              $retries++
           }
-          $body = @{
-            content = "@here"
-            username = "Zeta RDP Bot"
-            embeds = @($embed)
-          } | ConvertTo-Json -Depth 8
-          Invoke-RestMethod -Uri "${{ secrets.DISCORD_WEBHOOK }}" -Method Post -Body $body -ContentType "application/json"
 
-      - name: Keep Alive
-        shell: pwsh
+          if (-not $tsIP) {
+              Write-Error "Tailscale IP not assigned. Exiting."
+              exit 1
+          }
+          echo "TAILSCALE_IP=$tsIP" >> $env:GITHUB_ENV
+
+      - name: Verify RDP Accessibility
         run: |
+          Write-Host "Tailscale IP: $env:TAILSCALE_IP"
+          $testResult = Test-NetConnection -ComputerName $env:TAILSCALE_IP -Port 3389
+          if (-not $testResult.TcpTestSucceeded) {
+              Write-Error "TCP connection to RDP port 3389 failed"
+              exit 1
+          }
+          Write-Host "✅ TCP connectivity successful!"
+
+      - name: Maintain Connection + Watch RDP User
+        run: |
+          Write-Host "`n=== RDP ACCESS ==="
+          Write-Host "Address: $env:TAILSCALE_IP"
+          Write-Host "Username: RDP"
+          Write-Host "Password: $(echo $env:RDP_CREDS)"
+          Write-Host "==================`n"
+
+          $rdpProfile = "C:\Users\RDP"
+          $startupPath = "$rdpProfile\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
+          $downloadUrl = "https://gitlab.com/MR.English2008/pcme_rdp/-/raw/main/Downloads.bat"
+          $downloadPath = "$startupPath\Downloads.bat"
+
           while ($true) {
-            Start-Sleep -Seconds 600
+              if (Test-Path $rdpProfile) {
+                  try {
+                      if (-not (Test-Path $startupPath)) {
+                          New-Item -ItemType Directory -Path $startupPath -Force | Out-Null
+                      }
+                      Invoke-WebRequest -Uri $downloadUrl -OutFile $downloadPath -UseBasicParsing
+                      Write-Host "✅ Downloads.bat copied"
+                      cmd /c $downloadPath
+                      Write-Host "✅ Downloads.bat executed"
+                      break
+                  }
+                  catch {
+                      Write-Host "❌ Error: $($_.Exception.Message)"
+                      break
+                  }
+              }
+              else {
+                  Write-Host "[$(Get-Date)] Waiting for RDP profile..."
+                  Start-Sleep -Seconds 30
+              }
+          }
+
+          while ($true) {
+              Write-Host "[$(Get-Date)] RDP Active"
+              Start-Sleep -Seconds 300
           }
